@@ -1,0 +1,84 @@
+import re
+# 全局变量 X O _计数 表格列表
+str_ = [" " for i in range(0, 9)]  # 存储 table 用 list 还是 str 待定
+X_num = O_num = 0
+_num = 9
+
+
+def print_table():
+    print("---------")
+    for i in range(0, 3):
+        print("|", end=' ')
+        for j in range(0, 3):
+            print(str_[i*3+j], end=' ')
+        print("|", end='\n')
+    print("---------")
+
+
+def check_input(s):
+    if s.replace(" ", "").isdecimal():
+        return True
+    return False
+
+
+def play_game():
+    global X_num
+    global O_num
+    global _num
+    while True:
+        s = input("Enter the coordinates:")
+        if check_input(s):
+            s = s.split()
+            a = int(s[0])
+            b = int(s[1])
+            if a in range(1, 4) and b in range(1, 4):
+                if str_[(a-1)*3+b-1] != ' ':
+                    print("This cell is occupied! Choose another one!")
+                    continue
+                else:
+                    if X_num > O_num:
+                        str_[(a-1)*3+b-1] = 'O'
+                        O_num += 1
+                        _num -= 1
+                    else:
+                        str_[(a-1)*3+b-1] = 'X'
+                        X_num += 1
+                        _num -= 1
+            else:
+                print("Coordinates should be from 1 to 3!")
+                continue
+        else:
+            print("You should enter numbers!")
+            continue
+        #  检查结果
+        res = check_res("".join(str_))
+        print_table()
+        if res is not False:
+            print(res)
+            break
+
+
+def check_res(res):
+    #  前三种不能合并 否则存在错行三连的bug
+    x_win_list = ["XXX......", "...XXX...", "......XXX", "X..X..X", "X...X...X", "..X.X.X.."]
+    o_win_list = ["OOO......", "...OOO...", "......OOO", "O..O..O", "O...O...O", "..O.O.O.."]
+    x_flag = False
+    o_flag = False
+    # 检查 X和O是否有一方已经获胜 或者打到平局了
+    for i in range(len(x_win_list)):
+        if len(re.findall(r'{}'.format(x_win_list[i]), res)) != 0:
+            x_flag = True
+        if len(re.findall(r'{}'.format(o_win_list[i]), res)) != 0:
+            o_flag = True
+    if x_flag is True:
+        return "X wins"
+    elif o_flag is True:
+        return "O wins"
+    elif _num == 0:
+        return "Draw"
+    return False
+
+
+if __name__ == '__main__':
+    print_table()
+    play_game()
